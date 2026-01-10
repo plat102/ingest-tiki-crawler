@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # API settings
-API_URL = 'https://api.tiki.vn'
+API_URL = 'https://api.tiki.vn/product-detail/api/v1/products'
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0'
 }

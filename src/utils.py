@@ -17,3 +17,12 @@ def load_product_ids_from_csv(file_path):
     except FileNotFoundError:
         print(f"File {file_path} not found")
         return None
+
+def save_json(data, file_path):
+    pass
+
+def load_json(file_path):
+    pass
+
+def clean_description(html):
+    pass
