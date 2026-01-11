@@ -4,7 +4,7 @@ import asyncio
 from datetime import timedelta
 import aiohttp
 from config import *
-from utils import load_product_ids_from_csv, save_json, load_checkpoint, save_checkpoint
+from utils import load_product_ids_from_csv, save_json, load_checkpoint, save_checkpoint, append_error_log
 
 async def fetch_product(session: aiohttp.ClientSession,
                         semaphore: asyncio.Semaphore,
@@ -16,21 +16,38 @@ async def fetch_product(session: aiohttp.ClientSession,
     async with semaphore:
         try:
             async with session.get(url) as response:
+                status = response.status
+                text = await response.text()
                 if response.status == 200:
                     data = await response.json()
 
                     return {
-                        'id': product_id,
-                        'name': data['name'],
-                        'url_key': data['url_key'],
-                        'price': data['price'],
-                        'description': data['description'],
-                        'short_description': data['short_description'],
-                        'images': data['images']
+                        'ok': True,
+                        'data': {
+                            'id': product_id,
+                            'name': data['name'],
+                            'url_key': data['url_key'],
+                            'price': data['price'],
+                            'description': data['description'],
+                            'short_description': data['short_description'],
+                            'images': data['images']
+                        }
+                    }
+                else:
+                    return {
+                        "ok": False,
+                        "product_id": product_id,
+                        "error_type": "HTTPError",
+                        "status": status,
+                        "response": text[:500]
                     }
         except Exception as e:
-            print(e)
-            return None
+            return {
+                "ok": False,
+                "product_id": product_id,
+                "error_type": type(e).__name__,
+                "message": str(e)
+            }
 
 async def process_batch(
     session: aiohttp.ClientSession,
@@ -42,7 +59,7 @@ async def process_batch(
         - Launch all tasks at once
         - Semaphore control concurrency
     """
-    print(f"Batch {batch_index+1}: Processing {len(batch_ids)} products.")
+    print(f"Batch idx {batch_index}: Processing {len(batch_ids)} products.")
 
     batch_start_time = time.time()
 
@@ -55,17 +72,29 @@ async def process_batch(
     # Semaphore control numbers of tasks run
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Filter success/error
+    # Filter results
     products = []
     errors_cnt = 0
 
-    for result in results:
-        if isinstance(result, Exception):
+    for pid, result in zip(batch_ids, results):
+        if not result:
             errors_cnt += 1
-        elif result is not None:
-            products.append(result)
+            append_error_log(ERROR_FILE, {
+                "batch": batch_index,
+                "product_id": pid,
+                "error_type": "Unknown",
+                "message": "Empty result"
+            })
+            continue
+
+        if isinstance(result, dict) and result.get("ok"):
+            products.append(result["data"])
         else:
             errors_cnt += 1
+            append_error_log(ERROR_FILE, {
+                "batch": batch_index,
+                **result
+            })
 
     if products:
         output_file = f'{OUTPUT_DIR}/batch_{batch_index:04d}.json'

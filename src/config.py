@@ -19,7 +19,7 @@ RETRY_DELAY = 2
 BASE_DIR = Path(__file__).parent.parent
 INPUT_FILE = f"{BASE_DIR}/data/test.csv"
 OUTPUT_DIR = f"{BASE_DIR}/data/products"
-ERROR_FILE = f"{BASE_DIR}/data/errors.json"
+ERROR_FILE = f"{BASE_DIR}/data/errors.jsonl"
 CHECKPOINT_FILE = f"{BASE_DIR}/data/checkpoint.json"
 
 print(INPUT_FILE)

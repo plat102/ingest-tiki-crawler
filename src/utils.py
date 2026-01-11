@@ -2,6 +2,8 @@ import csv
 import json
 import os
 from datetime import datetime
+from pathlib import Path
+
 
 def load_product_ids_from_csv(file_path):
     product_ids = []
@@ -32,10 +34,18 @@ def load_json(file_path):
 def clean_description(html):
     pass
 
-def append_error_log(error_data, file_path):
-    error_data['timestamp'] = datetime.now().isoformat()
-    with open(file_path, 'a') as log_file:
-        log_file.write(json.dumps(error_data, indent=4) + '\n')
+def append_error_log(file_path, record: dict):
+    """
+    Append error record (JSON Lines)
+    """
+
+    record["timestamp"] = datetime.utcnow().isoformat()
+
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(file_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 def load_checkpoint(checkpoint_file):
     if not os.path.isfile(checkpoint_file):
