@@ -15,7 +15,7 @@ async def fetch_product(session: aiohttp.ClientSession,
     url = f"{API_URL}/{product_id}"
 
     # random sleep
-    await asyncio.sleep(random.uniform(0, 0.1))
+    await asyncio.sleep(random.uniform(REQUEST_RANDOM_SLEEP_MIN, REQUEST_RANDOM_SLEEP_MAX))
 
     async with semaphore:
         for attempt in range(MAX_RETRIES):
