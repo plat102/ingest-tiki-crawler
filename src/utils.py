@@ -2,8 +2,9 @@ import csv
 import json
 import os
 from datetime import datetime
+from importlib.util import source_hash
 from pathlib import Path
-
+from bs4 import BeautifulSoup
 
 def load_product_ids_from_csv(file_path):
     product_ids = []
@@ -32,7 +33,39 @@ def load_json(file_path):
         return json.load(json_file)
 
 def clean_description(html):
-    pass
+    # parse HTML
+    soup = BeautifulSoup(html, "html.parser") #TODO: any faster parser?
+
+    # Get text
+    txt = soup.get_text(separator='\n')
+    lines = [line.strip()
+             for line in txt.splitlines()
+             if line.strip()]
+    cleaned_lines = '\n'.join(lines)
+
+    return cleaned_lines
+
+def parse_product_data(raw_data):
+    if not raw_data:
+        return None
+
+    raw_images = raw_data.get("images", [])
+    image_urls = []
+    if raw_images:
+        image_urls = [
+            img.get('base_url')
+            for img in raw_images
+            if img.get('base_url')
+        ]
+
+    return {
+        "id": raw_data.get("id"),
+        "name": raw_data.get("name"),
+        "url_key": raw_data.get("url_key"),
+        "price": raw_data.get("price"),
+        "description": clean_description(raw_data.get("description", "")),
+        "image_urls": image_urls
+    }
 
 def append_error_log(file_path, record: dict):
     """

@@ -4,7 +4,7 @@ import asyncio
 from datetime import timedelta
 import aiohttp
 from config import *
-from utils import load_product_ids_from_csv, save_json, load_checkpoint, save_checkpoint, append_error_log
+from utils import load_product_ids_from_csv, save_json, load_checkpoint, save_checkpoint, append_error_log, parse_product_data
 
 async def fetch_product(session: aiohttp.ClientSession,
                         semaphore: asyncio.Semaphore,
@@ -23,15 +23,7 @@ async def fetch_product(session: aiohttp.ClientSession,
 
                     return {
                         'ok': True,
-                        'data': {
-                            'id': product_id,
-                            'name': data['name'],
-                            'url_key': data['url_key'],
-                            'price': data['price'],
-                            'description': data['description'],
-                            'short_description': data['short_description'],
-                            'images': data['images']
-                        }
+                        'data': parse_product_data(data)
                     }
                 else:
                     return {
