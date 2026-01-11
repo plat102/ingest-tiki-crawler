@@ -24,8 +24,8 @@ def load_product_ids_from_csv(file_path):
         return None
 
 def save_json(data, file_path):
-    with open(file_path, 'w') as outfile:
-        json.dump(data, outfile, indent=4)
+    with open(file_path, 'w', encoding='utf-8') as outfile:
+        json.dump(data, outfile, indent=4,  ensure_ascii=False)
 
 def load_json(file_path):
     with open(file_path, encoding='utf-8') as json_file:
