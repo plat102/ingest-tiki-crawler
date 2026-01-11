@@ -1,4 +1,7 @@
 import csv
+import json
+import os
+from datetime import datetime
 
 def load_product_ids_from_csv(file_path):
     product_ids = []
@@ -19,10 +22,36 @@ def load_product_ids_from_csv(file_path):
         return None
 
 def save_json(data, file_path):
-    pass
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
 
 def load_json(file_path):
-    pass
+    with open(file_path, encoding='utf-8') as json_file:
+        return json.load(json_file)
 
 def clean_description(html):
     pass
+
+def append_error_log(error_data, file_path):
+    error_data['timestamp'] = datetime.now().isoformat()
+    with open(file_path, 'a') as log_file:
+        log_file.write(json.dumps(error_data, indent=4) + '\n')
+
+def load_checkpoint(checkpoint_file):
+    if not os.path.isfile(checkpoint_file):
+        return -1
+    try:
+        checkpoint = load_json(checkpoint_file)
+        if checkpoint and 'last_batch' in checkpoint:
+            return checkpoint['last_batch']
+        return -1
+    except json.JSONDecodeError:
+        return -1
+
+def save_checkpoint(batch_index, file_path):
+    checkpoint = {
+        'last_batch': batch_index,
+        'timestamp': datetime.now().isoformat()
+    }
+    save_json(checkpoint, file_path)
+
