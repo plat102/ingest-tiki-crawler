@@ -9,6 +9,7 @@ HEADERS = {
 # ----- Concurrency settings -----
 MAX_CONCURRENT_TASKS = 50 # max task running (n of fetch product running)
 BATCH_SIZE = 100 # products/JSON
+DELAY_AFTER_BATCH = 0.5
 
 # ----- Requests settings -----
 TIMEOUT = 30
@@ -18,6 +19,7 @@ RETRY_DELAY = 2
 # ----- File paths -----
 BASE_DIR = Path(__file__).parent.parent
 INPUT_FILE = f"{BASE_DIR}/data/test.csv"
+# INPUT_FILE = f"{BASE_DIR}/data/products-0-200000.csv"
 OUTPUT_DIR = f"{BASE_DIR}/data/products"
 ERROR_FILE = f"{BASE_DIR}/data/errors.jsonl"
 CHECKPOINT_FILE = f"{BASE_DIR}/data/checkpoint.json"
