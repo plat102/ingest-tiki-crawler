@@ -1,11 +1,10 @@
 """Main crawl logic"""
 import time
 import asyncio
-from datetime import timedelta
 import random
 import aiohttp
 from config import *
-from utils import load_product_ids_from_csv, save_json, load_checkpoint, save_checkpoint, append_error_log, parse_product_data
+from utils import save_json, load_checkpoint, save_checkpoint, append_error_log, parse_product_data
 
 async def fetch_product(session: aiohttp.ClientSession,
                         semaphore: asyncio.Semaphore,
@@ -71,7 +70,8 @@ async def process_batch(
     session: aiohttp.ClientSession,
     semaphore: asyncio.Semaphore,
     batch_ids: list,
-    batch_index: int
+    batch_index: int,
+    file_prefix: str = 'batch'
 ):
     """Process batch with semaphore
         - Launch all tasks at once
@@ -113,7 +113,7 @@ async def process_batch(
     error_cnt = len(errors)
     # Save product files
     if products:
-        output_file = f'{OUTPUT_DIR}/batch_{batch_index:04d}.json'
+        output_file = f'{OUTPUT_DIR}/{file_prefix}_{batch_index:04d}.json'
         save_json(products, output_file)
         print(f'\tSaved {success_cnt} products to {output_file}')
 
@@ -131,11 +131,17 @@ async def process_batch(
 
     return len(products), error_cnt
 
-async def fetch_all_products(product_ids: list):
+async def fetch_all_products(product_ids: list, retry_mode: bool=False):
 
-    # Load checkpoint
-    last_batch = load_checkpoint(CHECKPOINT_FILE)
-    start_batch = last_batch + 1
+    if retry_mode:
+        print(f"\nRun mode: RETRY (ignore checkpoint)")
+        start_batch = 0
+        file_prefix = 'retry_batch'
+    else:
+        # Load checkpoint
+        last_batch = load_checkpoint(CHECKPOINT_FILE)
+        start_batch = last_batch + 1
+        file_prefix = 'batch'
     total_batches = (len(product_ids) + BATCH_SIZE - 1) // BATCH_SIZE
 
     print(f"\n{'='*60}")
@@ -169,13 +175,14 @@ async def fetch_all_products(product_ids: list):
             batch_ids = product_ids[start_idx:end_idx]
 
             success, error = await process_batch(
-                session, semaphore, batch_ids, batch_idx
+                session, semaphore, batch_ids, batch_idx, file_prefix
             )
             total_products += success
             total_errors += error
 
             # Save checkpoint
-            save_checkpoint(batch_idx, CHECKPOINT_FILE)
+            if not retry_mode:
+                save_checkpoint(batch_idx, CHECKPOINT_FILE)
 
             # Small delay between batches
             await asyncio.sleep(DELAY_AFTER_BATCH)

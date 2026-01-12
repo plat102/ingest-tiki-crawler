@@ -117,3 +117,40 @@ def save_checkpoint(batch_index, file_path):
     }
     save_json(checkpoint, file_path)
 
+def load_failed_ids(file_path):
+    path = Path(file_path)
+    if not os.path.isfile(file_path):
+        print(f'No error file found at {file_path}')
+        return
+
+    failed_ids = set()
+    try:
+        with open(file_path, encoding='utf-8') as csv_file:
+            for line in csv_file:
+                try:
+                    error_record = json.loads(line.strip())
+                    pid = error_record.get("product_id")
+                    if pid:
+                        failed_ids.add(int(pid))
+                except json.JSONDecodeError:
+                    continue
+        failed_list = sorted(list(failed_ids))
+        print(f"Loaded {len(failed_list)} failed ids from {file_path}")
+
+        if path.exists():
+            backup_error_log(path)
+
+        return failed_list
+    except Exception as e:
+        print(f"Failed to load failed ids from {file_path}")
+
+def backup_error_log(file_path: Path | str):
+    path = Path(file_path)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = path.with_name(f"{path.name}.{timestamp}.bak")
+
+    try:
+        file_path.rename(backup_path)
+        print(f"Log backed up to: {backup_path.name}")
+    except Exception as e:
+        print(f"Could not backup file: {e}")
