@@ -191,13 +191,3 @@ async def fetch_all_products(product_ids: list):
     print(f"Time: {total_time / 60:.2f} minutes")
     print(f"Speed: {len(product_ids) / total_time:.2f} products/second")
     print(f"{'=' * 60}")
-
-async def main():
-
-    product_ids = load_product_ids_from_csv(INPUT_FILE)
-
-    # Crawl
-    await fetch_all_products(product_ids)
-
-if __name__ == "__main__":
-    asyncio.run(main())

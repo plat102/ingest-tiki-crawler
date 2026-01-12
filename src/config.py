@@ -55,10 +55,10 @@ MAX_RETRIES = get_env_int('MAX_RETRIES', 3)
 RETRY_DELAY = get_env_int('RETRY_DELAY', 2)
 
 # ----- Config print when imported -----
-if __name__ != "__main__":
+def print_config():
     print(f"{'='*40}")
     print(f"CONFIG LOADED")
-    print(f"   Input:       {INPUT_FILENAME}")
-    print(f"   Concurrency: {MAX_CONCURRENT_TASKS}")
-    print(f"   Batch Size:  {BATCH_SIZE}")
-    print(f"{'='*40}")
+    print(f"\tInput:       {INPUT_FILENAME}")
+    print(f"\tConcurrency: {MAX_CONCURRENT_TASKS}")
+    print(f"\tBatch Size:  {BATCH_SIZE}")
+    print()
