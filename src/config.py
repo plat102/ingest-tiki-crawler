@@ -2,7 +2,13 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load from env path
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env_filename = os.getenv("TIKI_CRAWL_ENV_FILE", ".env")
+env_path = BASE_DIR / env_filename
+
+load_dotenv(dotenv_path=env_path, override=True)
 
 def get_env_str(key: str, default: str) -> str:
     return os.getenv(key, default)
@@ -24,10 +30,9 @@ def get_env_float(key: str, default: float) -> float:
         return default
 
 # ----- Paths Settings -----
-BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 
-INPUT_FILENAME = get_env_str("INPUT_FILENAME", "test.csv")
+INPUT_FILENAME = get_env_str("INPUT_FILENAME", "default.csv")
 INPUT_FILE = DATA_DIR / INPUT_FILENAME
 
 OUTPUT_DIR = DATA_DIR / "products"
@@ -57,7 +62,7 @@ RETRY_DELAY = get_env_int('RETRY_DELAY', 2)
 # ----- Config print when imported -----
 def print_config():
     print(f"{'='*40}")
-    print(f"CONFIG LOADED")
+    print(f"CONFIG LOADED from {env_filename}")
     print(f"\tInput:       {INPUT_FILENAME}")
     print(f"\tConcurrency: {MAX_CONCURRENT_TASKS}")
     print(f"\tBatch Size:  {BATCH_SIZE}")
