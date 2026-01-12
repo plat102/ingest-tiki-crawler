@@ -2,9 +2,9 @@ import csv
 import json
 import os
 from datetime import datetime
-from importlib.util import source_hash
 from pathlib import Path
 from bs4 import BeautifulSoup
+from schema import Product
 
 def load_product_ids_from_csv(file_path):
     product_ids = []
@@ -45,7 +45,7 @@ def clean_description(html):
 
     return cleaned_lines
 
-def parse_product_data(raw_data):
+def parse_product_data_manual(raw_data):
     if not raw_data:
         return None
 
@@ -66,6 +66,25 @@ def parse_product_data(raw_data):
         "description": clean_description(raw_data.get("description", "")),
         "image_urls": image_urls
     }
+
+
+def parse_product_data(raw_data: dict):
+    if not raw_data:
+        return None
+    # Validate & transform
+    try:
+        product = Product(
+            id=raw_data.get("id",0),
+            name=raw_data.get("name", "name not found"),
+            url_key=raw_data.get("url_key"),
+            price=raw_data.get("price", 0),
+            description=raw_data.get("description"),
+            image_urls=raw_data.get("images", [])
+        )
+
+        return product.model_dump()
+    except Exception as e:
+        print(e)
 
 def append_error_log(file_path, record: dict):
     """
