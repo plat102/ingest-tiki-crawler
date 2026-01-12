@@ -18,7 +18,7 @@ def load_product_ids_from_csv(file_path):
                 if row:
                     product_ids.append(int(row[0]))
 
-        print(f"Loaded {len(product_ids)} products")
+        print(f"Loaded {len(product_ids)} products id from {file_path}")
         return product_ids
     except FileNotFoundError:
         print(f"File {file_path} not found")

@@ -196,10 +196,6 @@ async def main():
 
     product_ids = load_product_ids_from_csv(INPUT_FILE)
 
-    # Estimate
-    est_seconds = (len(product_ids) / MAX_CONCURRENT_TASKS) * 0.5 * 1.2
-    print("Estimated time:", str(timedelta(seconds=int(est_seconds))))
-
     # Crawl
     await fetch_all_products(product_ids)
 
