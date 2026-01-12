@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "ingest-tiki-crawler"
+version = "0.1.0"
+description = "Asynchronous Product Crawler for Tiki.vn"
+authors = ["thuphan <thuleanhphan@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "^1.2.1"
+aiohttp = "^3.13.3"
+beautifulsoup4 = "^4.14.3"
+pydantic = "^2.12.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disable_error_code = ["import-untyped", "import-not-found"]

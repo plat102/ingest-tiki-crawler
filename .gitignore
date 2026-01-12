@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments (Poetry typically uses .venv)
+.venv/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Poetry local cache
+.poetry/
+poetry.toml
+
+# Logs / misc
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+.env
+
+*/logs
+
+/data
