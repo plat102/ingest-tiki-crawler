@@ -115,10 +115,14 @@ Estimation:
 
 - [ ]  Logging & code quality: Cải thiện logging (hiện đang print), review structure
 - [ ]  Testing: Cân nhắc viết unit test cho các hàm, kiểm tra chất lượng dữ liệu của output data
+
+  - [X]  Thêm /tests
+  - [ ]  Viết thêm test
 - [ ]  Production-ready: Tìm hiểu thêm các hướng 1 pj kiểu này "chuẩn production"
+
   - [X]  Auto-restart mechanism (current: Docker restart policy)
-- [ ]  Database: Viết module connector để đưa dữ liệu trực tiếp vào db thay vì lưu file JSON.
-- [ ]  Dockerization: Đóng gói ứng dụng thành Docker Image để dễ deploy trên Cloud/K8s.
+- [X]  Dockerization: Đóng gói ứng dụng thành Docker Image để dễ deploy trên Cloud/K8s.
+- [ ]  Database: Viết module connector để đưa dữ liệu trực tiếp vào db thay vì lưu file JSON
 - [ ]  Data analysis: Xem dữ liệu thu được để có thêm ý tưởng thu thập & xử lí
 - [ ]  Proxy rotation: Tích hợp rotating để bypass Rate Limit 429.
 
