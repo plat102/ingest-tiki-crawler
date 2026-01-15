@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from schema import Product
 
 def load_product_ids_from_csv(file_path):
-    product_ids = []
+    product_ids = set()
     try:
         with open(file_path, encoding='utf-8') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -16,10 +16,10 @@ def load_product_ids_from_csv(file_path):
 
             for row in csv_reader:
                 if row:
-                    product_ids.append(int(row[0]))
+                    product_ids.add(int(row[0]))
 
         print(f"Loaded {len(product_ids)} products id from {file_path}")
-        return product_ids
+        return list(product_ids)
     except FileNotFoundError:
         print(f"File {file_path} not found")
         return None
