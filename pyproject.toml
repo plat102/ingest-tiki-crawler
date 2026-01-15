@@ -19,3 +19,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 disable_error_code = ["import-untyped", "import-not-found"]
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)"
+]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
