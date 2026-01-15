@@ -30,50 +30,59 @@ Speed: 52.86 products/second
 
 > **Sample products file:** https://gist.github.com/plat102/cc9a3d2f31401a69fd4ff5f30f301bb6
 
-## Set up
-### Prerequisites
+## Set up & Usage
 
-* **Python:** >= 3.12
-* **Poetry:** For dependency management.
-### Installation
-1.  **Clone the repository:**
+This crawler can be run either using Docker or Locally.
+
+**Clone & Config:**
+```bash
+git clone https://github.com/plat102/ingest-tiki-crawler
+cd ingest-tiki-crawler
+cp .env.example .env
+```
+
+### Option 1: Docker
+
+**Prerequisites:** Docker & Docker Compose installed.
+1. **Start Crawler (Background Mode):**
+    This command builds the image and starts the worker with auto-restart policy enabled.
     ```bash
-    git clone https://github.com/plat102/ingest-tiki-crawler
-    cd ingest-tiki-crawler
+    docker compose up -d
     ```
 
-2.  **Install dependencies:**
+2. **Monitor Logs:**
+    ```bash
+    docker compose logs -f
+    ```
+
+3. **Run Retry Mode (Ad-hoc):**
+    To run the crawler in `--retry-error` mode inside a temporary container:
+    ```bash
+    # Stop the main worker first to avoid file conflicts
+    docker compose stop
+
+    # Run retry command
+    docker compose run --rm tiki-crawler python src/main.py --retry-error
+    ```
+
+### Option 2: Run Locally (Development)
+
+**Prerequisites:** Python >= 3.12, Poetry.
+
+1.  **Install dependencies:**
     ```bash
     poetry install
     ```
 
-3.  **Setup env config:**
+2. **Run Normal Crawl:**
     ```bash
-    cp .env.example .env
+    poetry run python src/main.py
     ```
 
-## Usage
-
-### 1. Normal crawl
-Reads product IDs from the input CSV and crawls data.
-```bash
-poetry run python src/main.py
-```
-* Input: data/default .csv (Default, configurable in .env).
-* Output: data/products/batch_xxxx.json.
-* Checkpoint: Saved to data/checkpoint.json.
-
-Example: 
-
-
-### 2. Retry errors
-Reads the error log, backups the old log file, and retries only the failed IDs. This mode ignores the current checkpoint.
-```
-python src/main.py --retry-error
-```
-* Input: data/errors.jsonl.
-* Backup: Old logs are renamed to errors.jsonl.<timestamp>.bak.
-* Output: data/products/retry_batch_xxxx.json.
+3. **Run Retry Errors:**
+    ```bash
+    poetry run python src/main.py --retry-error
+    ```
 
 ### Configuration (`.env`)
 

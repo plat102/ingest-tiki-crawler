@@ -112,13 +112,15 @@ Estimation:
 * Case k quá phức tạp nên dùng thử, nghe nhiều mà chưa dùng.
 
 ## Future enhancements
-- [ ] Logging & code quality: Cải thiện logging (hiện đang print), review structure
-- [ ] Testing: Cân nhắc viết unit test cho các hàm, kiểm tra chất lượng dữ liệu của output data 
-- [ ] Production-ready: Tìm hiểu thêm các hướng 1 pj kiểu này "chuẩn production"
-- [ ] Database: Viết module connector để đưa dữ liệu trực tiếp vào db thay vì lưu file JSON.
-- [ ] Dockerization: Đóng gói ứng dụng thành Docker Image để dễ deploy trên Cloud/K8s.
-- [ ] Data analysis: Xem dữ liệu thu được để có thêm ý tưởng thu thập & xử lí
-- [ ] Proxy rotation: Tích hợp rotating để bypass Rate Limit 429.
+
+- [ ]  Logging & code quality: Cải thiện logging (hiện đang print), review structure
+- [ ]  Testing: Cân nhắc viết unit test cho các hàm, kiểm tra chất lượng dữ liệu của output data
+- [ ]  Production-ready: Tìm hiểu thêm các hướng 1 pj kiểu này "chuẩn production"
+  - [X]  Auto-restart mechanism (current: Docker restart policy)
+- [ ]  Database: Viết module connector để đưa dữ liệu trực tiếp vào db thay vì lưu file JSON.
+- [ ]  Dockerization: Đóng gói ứng dụng thành Docker Image để dễ deploy trên Cloud/K8s.
+- [ ]  Data analysis: Xem dữ liệu thu được để có thêm ý tưởng thu thập & xử lí
+- [ ]  Proxy rotation: Tích hợp rotating để bypass Rate Limit 429.
 
 ## Lessons learned
 
