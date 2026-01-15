@@ -1,0 +1,17 @@
+services:
+  tiki-crawler:
+    build: .
+    container_name: tiki-crawler-worker
+
+    # Auto-restart
+    # Limit: 10 times
+    restart: on-failure:10
+
+    # Mount data to localhost
+    volumes:
+      - ./.env:/app/.env
+      - ./data_prod:/app/data
+
+    # Limit resources
+    mem_limit: 512m
+    cpus: 1.0
