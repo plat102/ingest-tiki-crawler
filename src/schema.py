@@ -38,9 +38,14 @@ class Product(BaseModel):
         if not value:
             return []
         if isinstance(value, list):
-            return [
-                img.get('base_url')
-                for img in value
-                if img.get('base_url')
-            ]
+            results = []
+            for img in value:
+                if isinstance(img, dict): # raw
+                    url = img.get('base_url')
+                    if url:
+                        results.append(url)
+                elif isinstance(img, str): # process for db
+                    results.append(img)
+            return results
+
         return []

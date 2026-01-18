@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extras import  execute_values
 from pygments.lexers import data
 
+from src.schema import Product
 from src.database.connect import get_connection
 
 class ProductSQLClient:
@@ -30,7 +31,19 @@ class ProductSQLClient:
             cur.execute(query)
             self.conn.commit()
 
-    def bulk_upsert(self, data: list[dict]):
+    def _map_product_to_tuple(self, product: Product, raw_dict: dict) -> tuple:
+        """Convert Product (crawled) to tuple for db insert"""
+        return (
+            product.id,
+            product.name,
+            product.url_key,
+            product.price,
+            product.description,
+            json.dumps(product.image_urls),
+            json.dumps(raw_dict)
+        )
+
+    def bulk_upsert(self, data: list[tuple[Product, dict]]) :
         if not data:
             return
         query = """
@@ -51,16 +64,8 @@ class ProductSQLClient:
 
         # Match data with db schema
         values = []
-        for product in data:
-            record = (
-                product.get("id"),
-                product.get("name"),
-                product.get("url_key"),
-                product.get("price"),
-                product.get("description"),
-                json.dumps(product.get("image_urls", [])),
-                json.dumps(product)
-            )
+        for item in data:
+            record = self._map_product_to_tuple(product=item[0], raw_dict=item[1])
             values.append(record)
 
         # Exec upsert

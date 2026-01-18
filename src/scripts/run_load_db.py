@@ -2,6 +2,7 @@ import json
 import glob
 from src.database.sql_client import ProductSQLClient
 from src.config import OUTPUT_DIR
+from src.schema import Product
 
 def main():
     print("===== Starting database loading...")
@@ -16,15 +17,16 @@ def main():
 
     try:
         for file_path in files:
+            batch_data = []
             with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                raw_data = json.load(f)
+                for item in raw_data:
+                    product = Product(**item)
+                    batch_data.append((product, item))
 
-                if isinstance(data, dict):
-                    data = [data]
-
-                if data:
-                    client.bulk_upsert(data)
-                    total_files += 1
+            if batch_data:
+                client.bulk_upsert(batch_data)
+                total_files += 1
 
         print(f"DONE. Successfully loaded data from {total_files} files.")
 
