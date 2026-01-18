@@ -1,7 +1,7 @@
 import json
-import psycopg2
+from datetime import datetime, timezone
+
 from psycopg2.extras import  execute_values
-from pygments.lexers import data
 
 from src.schema import Product
 from src.database.connect import get_connection
@@ -22,8 +22,8 @@ class ProductSQLClient:
             description TEXT,
             image_urls JSONB,
             raw_data JSONB,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
         """
 
@@ -46,10 +46,12 @@ class ProductSQLClient:
     def bulk_upsert(self, data: list[tuple[Product, dict]]) :
         if not data:
             return
+        utc_now = datetime.now(timezone.utc).isoformat()
         query = """
             INSERT INTO products (
                 id, name, url_key, price, description, 
-                image_urls, raw_data
+                image_urls, raw_data,
+                created_at, updated_at
             )
             VALUES %s
             ON CONFLICT (id) DO UPDATE SET
@@ -59,21 +61,22 @@ class ProductSQLClient:
                 description = EXCLUDED.description,
                 image_urls = EXCLUDED.image_urls,
                 raw_data = EXCLUDED.raw_data,
-                updated_at = NOW(); -- updated timestamp
+                updated_at = EXCLUDED.updated_at;
             """
 
         # Match data with db schema
         values = []
         for item in data:
             record = self._map_product_to_tuple(product=item[0], raw_dict=item[1])
-            values.append(record)
+            full_record = record + (utc_now, utc_now)
+            values.append(full_record)
 
         # Exec upsert
         try:
             with self.conn.cursor() as cur:
                 execute_values(cur, query, values)
                 self.conn.commit()
-                print(f" [PostgreSQL client] Loaded batch of {len(data)} products")
+                print(f" [PostgreSQL client] At {utc_now} - Loaded batch of {len(data)} products")
         except Exception as e:
             self.conn.rollback()
             print(f" [PostgreSQL client] Error: {e}")

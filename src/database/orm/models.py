@@ -14,5 +14,5 @@ class ProductORM(Base):
     raw_data = Column(JSON)
 
     # Auto update times
-    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=True), onupdate=func.now(), nullable=False)
