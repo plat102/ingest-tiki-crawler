@@ -93,6 +93,36 @@ If you encounter `HTTP 429 Too Many Requests` too often, pls try:
 - increase `REQUEST_RANDOM_SLEEP_MIN`
 - increase `REQUEST_RANDOM_SLEEP_MAX`
 
+## Load into Database
+This project also allows loading crawled JSON into PostgreSQL for persistent storage.
+
+* **High Performance:** Uses `psycopg2` for bulk inserts.
+* **Idempotent:** Implements `ON CONFLICT DO UPDATE` to prevent duplicates.
+* **Flexible:** Stores raw data using `JSONB`.
+
+Usage:
+1. **Set up Database:**
+
+    Set credentials in `.env` file
+2. **Initialize schema (run once):**
+    ```bash
+    poetry run python -m src.scripts.init_db
+    ```
+3. Load data
+    ```bash
+    poetry run python -m src.scripts.run_load_db
+    ```
+Example logs:
+```shell
+(ingest-tiki-crawler-py3.12) ➜  tiki-crawl git:(dev) ✗ python -m src.scripts.run_load_db
+===== Starting database loading...
+DEBUG: Searching in path: /home/thu/repo/project/tiki-crawl/data/products/batch_*.json
+Found 200 JSON files.
+ [PostgreSQL client] Loaded batch of 999 products
+ [PostgreSQL client] Loaded batch of 998 products
+ [PostgreSQL client] Loaded batch of 999 products
+```
+
 ## Contributing
 Pull requests are welcome.<br>
 For major changes, please open an issue to discuss what you would like to change. Thanks.
