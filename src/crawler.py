@@ -4,7 +4,8 @@ import asyncio
 import random
 import aiohttp
 from config import *
-from utils import save_json, load_checkpoint, save_checkpoint, append_error_log, parse_product_data
+from utils import save_json, load_checkpoint, save_checkpoint, append_error_log
+from transformers import parse_product_data
 
 async def fetch_product(session: aiohttp.ClientSession,
                         semaphore: asyncio.Semaphore,
