@@ -59,6 +59,12 @@ TIMEOUT = get_env_int('TIMEOUT', 30)
 MAX_RETRIES = get_env_int('MAX_RETRIES', 3)
 RETRY_DELAY = get_env_int('RETRY_DELAY', 2)
 
+# ----- Logging settings -----
+LOG_DIR = BASE_DIR / "logs"
+LOG_FILE_APP = LOG_DIR / "app.log"
+LOG_FILE_ERROR = LOG_DIR / "error.log"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 # ----- Config print when imported -----
 def print_config():
     print(f"{'='*40}")

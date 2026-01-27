@@ -1,16 +1,43 @@
+import logging
 import json
 from datetime import datetime, timezone
 
+import psycopg2
 from psycopg2.extras import  execute_values
+from psycopg2 import OperationalError, InterfaceError, IntegrityError
 
+from src.database.config import DB_CONFIG_DICT
 from src.schema import Product
 from src.database.connect import get_connection
+from src.database.exceptions import (
+    DBConnectionError,
+    DBConstraintError,
+    DBOperationError,
+    DatabaseError
+)
+
+logger = logging.getLogger(__name__)
 
 class ProductSQLClient:
     def __init__(self):
-        self.conn = get_connection()
+        self.conn =  None
+        self.connect()
         # Create table when init
         self._create_table()
+
+    def connect(self):
+        """ Create a connection to the PostgreSQL database
+        TODO: Connection Pool ?
+        """
+        try:
+            self.conn = psycopg2.connect(**DB_CONFIG_DICT)
+            logger.debug(f"[PostgreSQL client] Connected to database")
+        except (InterfaceError, OperationalError) as e:
+            logger.exception('Connection failed')
+            raise DBConnectionError('Could not connect to PostgreSQL database', original_exception=e)
+        except Exception as e:
+            logger.error(f'Unexpected DB error: {e}')
+            raise DatabaseError('Unexpected error', original_exception=e)
 
     def _create_table(self):
         query = """
@@ -27,9 +54,15 @@ class ProductSQLClient:
         );
         """
 
-        with self.conn.cursor() as cur:
-            cur.execute(query)
-            self.conn.commit()
+        try:
+            with self.conn.cursor() as cur:
+                cur.execute(query)
+                self.conn.commit()
+
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f" Failed to init table: {e}")
+            raise DBOperationError('Failed to init table', original_exception=e)
 
     def _map_product_to_tuple(self, product: Product, raw_dict: dict) -> tuple:
         """Convert Product (crawled) to tuple for db insert"""
@@ -76,11 +109,24 @@ class ProductSQLClient:
             with self.conn.cursor() as cur:
                 execute_values(cur, query, values)
                 self.conn.commit()
-                print(f" [PostgreSQL client] At {utc_now} - Loaded batch of {len(data)} products")
+                logger.info(f" [PostgreSQL client] At {utc_now} - Loaded batch of {len(data)} products")
+
+        except IntegrityError as e:
+            self.conn.rollback()
+            logger.error(f'Data integrity error: {e}')
+            raise DBConstraintError('Data constraint violated', original_exception=e)
+
+        except (OperationalError, IntegrityError) as e:
+            self.conn.rollback()
+            logger.error(f'Connection lost during upsert: {e}')
+            raise DBConnectionError('Connection error', original_exception=e)
+
         except Exception as e:
             self.conn.rollback()
-            print(f" [PostgreSQL client] Error: {e}")
+            logger.error(f"DB Error: {e}")
+            raise DatabaseError("Unexpected upsert failed", original_exception=e)
 
     def close(self):
         if self.conn:
             self.conn.close()
+            logger.info('Database connection closed')
